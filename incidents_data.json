@@ -1,0 +1,14 @@
+[
+  {
+    "id": 1,
+    "timestamp": "2024-01-28T10:00:00Z",
+    "type": "TAILGATING",
+    "persons": 2,
+    "location": {
+      "lat": 28.7041,
+      "lon": 77.1025,
+      "name": "Main Gate"
+    },
+    "status": "DETECTED"
+  }
+]
