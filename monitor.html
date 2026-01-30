@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Entry Point Monitor - TailGuard</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .monitor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-5px);
+        }
+
+        .monitor-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .start-btn {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+        }
+
+        .start-btn:hover:not(:disabled) {
+            background: rgba(76, 175, 80, 0.5);
+            transform: scale(1.05);
+        }
+
+        .stop-btn {
+            background: rgba(244, 67, 54, 0.3);
+            border: 1px solid rgba(244, 67, 54, 0.5);
+        }
+
+        .stop-btn:hover:not(:disabled) {
+            background: rgba(244, 67, 54, 0.5);
+            transform: scale(1.05);
+        }
+
+        .capture-btn {
+            background: rgba(33, 150, 243, 0.3);
+            border: 1px solid rgba(33, 150, 243, 0.5);
+        }
+
+        .capture-btn:hover:not(:disabled) {
+            background: rgba(33, 150, 243, 0.5);
+            transform: scale(1.05);
+        }
+
+        .detection-status {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .status-active {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.4);
+            color: #4CAF50;
+        }
+
+        .status-inactive {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.4);
+            color: #f44336;
+        }
+
+        .detection-log {
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .log-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-time {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .log-event {
+            flex: 1;
+            margin: 0 15px;
+        }
+
+        .log-confidence {
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+
+        .video-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .ai-processing {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 8px 12px;
+            border-radius: 8px;
+            display: none;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .processing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .processing-dots span {
+            width: 6px;
+            height: 6px;
+            background: #00ff00;
+            border-radius: 50%;
+            animation: pulse 1.4s ease-in-out infinite both;
+        }
+
+        .processing-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .processing-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes pulse {
+            0%, 80%, 100% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .analytics-card {
+            padding: 20px;
+        }
+
+        .analytics-card h3 {
+            margin-bottom: 15px;
+            color: #00ff00;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .metric-value {
+            font-weight: 600;
+            color: #00ff00;
+        }
+
+        .detection-types {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .type-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+        }
+
+        .type-icon {
+            font-size: 1.2rem;
+        }
+
+        .type-label {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+
+        .type-count {
+            font-weight: 600;
+            color: #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-gradient"></div>
+
+    <div class="container">
+
+        <!-- Header -->
+        <div class="glass-card monitor-header">
+            <div>
+                <h1 class="title">📹 Live Entry Point Monitor</h1>
+                <p class="subtitle">Real-time AI-Powered Person Detection</p>
+            </div>
+            <div>
+                <a href="index.html" class="back-btn">← Back to Home</a>
+            </div>
+        </div>
+
+        <!-- Monitor Controls -->
+        <div class="glass-card monitor-controls">
+            <button class="control-btn start-btn" id="startDetection">
+                🔍 Start Detection
+            </button>
+            <button class="control-btn stop-btn" id="stopDetection" disabled>
+                ⏹️ Stop Detection
+            </button>
+            <button class="control-btn capture-btn" id="captureEvidence">
+                📸 Capture Evidence
+            </button>
+        </div>
+
+        <!-- Video Container -->
+        <div class="glass-card">
+            <h2 style="margin-bottom: 20px;">📹 Live Entry Point Monitor</h2>
+            <div class="video-wrapper">
+                <video id="videoPreview" autoplay muted playsinline style="width: 100%; border-radius: 10px;"></video>
+                <div class="detection-overlay" id="detectionOverlay">
+                    <p class="detection-status" id="detectionStatus">AI Detection: <span id="detectionCount">0</span> persons detected</p>
+                </div>
+                <!-- AI Processing Indicator -->
+                <div class="ai-processing" id="aiProcessing">
+                    <div class="processing-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                    <p>AI Analyzing...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Real-time Analytics -->
+        <div class="analytics-grid">
+            <div class="glass-card analytics-card">
+                <h3>🚀 AI Performance</h3>
+                <div class="metric">
+                    <span class="metric-label">Processing Speed:</span>
+                    <span class="metric-value" id="processingSpeed">120ms</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Accuracy:</span>
+                    <span class="metric-value" id="accuracy">94.2%</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Confidence:</span>
+                    <span class="metric-value" id="confidence">87%</span>
+                </div>
+            </div>
+
+            <div class="glass-card analytics-card">
+                <h3>📊 Live Statistics</h3>
+                <div class="metric">
+                    <span class="metric-label">Total Detections:</span>
+                    <span class="metric-value" id="totalDetections">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Alerts Today:</span>
+                    <span class="metric-value" id="alertsToday">0</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Uptime:</span>
+                    <span class="metric-value" id="uptime">00:00:00</span>
+                </div>
+            </div>
+
+            <div class="glass-card analytics-card">
+                <h3>🎯 Detection Types</h3>
+                <div class="detection-types">
+                    <div class="type-item">
+                        <span class="type-icon">👤</span>
+                        <span class="type-label">Single Entry</span>
+                        <span class="type-count" id="singleEntry">0</span>
+                    </div>
+                    <div class="type-item">
+                        <span class="type-icon">👥</span>
+                        <span class="type-label">Tailgating</span>
+                        <span class="type-count" id="tailgating">0</span>
+                    </div>
+                    <div class="type-item">
+                        <span class="type-icon">⚠️</span>
+                        <span class="type-label">Suspicious</span>
+                        <span class="type-count" id="suspicious">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detection Log -->
+        <div class="glass-card detection-log">
+            <h3>📋 Live Detection Log - Real AI Activity</h3>
+            <div id="detectionLog" class="log-container">
+                <div class="log-entry">
+                    <span class="log-time">--:--:--</span>
+                    <span class="log-event">AI System initialized - Ready for detection</span>
+                    <span class="log-confidence">Ready</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="monitor.js"></script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TailGuard - Tailgating Detection 🔐</title>
+    <!-- Inline favicon (prevents 404) -->
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%94%90%3C/text%3E%3C/svg%3E">
+    <link rel="stylesheet" href="styles.css">
+    <!-- Leaflet CSS for maps -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+    <!-- Animated background gradient -->
+    <div class="background-gradient"></div>
+    
+    <!-- Main container -->
+    <div class="container">
+        
+        <!-- Header -->
+        <header class="glass-card">
+            <h1 class="title">🔐 TailGuard</h1>
+            <p class="subtitle">AI-Powered Tailgating Detection System</p>
+            
+        </header>
+
+        <!-- Status Display -->
+        <div class="status-display glass-card">
+            <div class="status-item">
+                <span class="status-label">📹 Camera:</span>
+                <span class="status-value" id="cameraStatus">Initializing...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">🤖 AI Detection:</span>
+                <span class="status-value" id="aiStatus">Ready</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">🔗 Backend:</span>
+                <span class="status-value" id="backendStatus">Checking...</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">👥 Monitoring:</span>
+                <span class="status-value" id="monitoringStatus">Active</span>
+            </div>
+        </div>
+
+        <!-- LIVE DEMO INDICATORS - PROVES AI IS WORKING -->
+        <div class="demo-indicators glass-card">
+            <h3>🎯 LIVE SECURITY DEMO - PROVE AI WORKS</h3>
+            <div class="indicator-grid">
+                <div class="indicator-item">
+                    <span class="indicator-label">Security Status:</span>
+                    <span class="indicator-value" id="securityStatus">🔒 SECURE</span>
+                </div>
+                <div class="indicator-item">
+                    <span class="indicator-label">Threat Level:</span>
+                    <span class="indicator-value" id="threatLevel">LOW</span>
+                </div>
+                <div class="indicator-item">
+                    <span class="indicator-label">AI Confidence:</span>
+                    <span class="indicator-value" id="confidenceMeter">0%</span>
+                </div>
+                <div class="indicator-item">
+                    <span class="indicator-label">Last Detection:</span>
+                    <span class="indicator-value" id="lastDetection">--:--:--</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- LIVE DETECTION LOG - REAL-TIME PROOF -->
+        <div class="detection-log glass-card">
+            <h3>📋 Live Detection Log - Real AI Activity</h3>
+            <div id="detectionLog" class="log-container">
+                <div class="log-entry">
+                    <span class="log-time">--:--:--</span>
+                    <span class="log-event">AI System initialized - Ready for detection</span>
+                    <span class="log-confidence">Ready</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Features Grid -->
+        <div class="features-grid">
+            
+            <!-- Tailgating Detection - Main Feature -->
+            <div class="feature-card glass-card monitor-card" id="monitorBtn">
+                <div class="feature-icon">👁️</div>
+                <h2 class="feature-title">TAILGATING DETECTION</h2>
+                <p class="feature-description">2+ Persons Alert System</p>
+                <div class="pulse-ring"></div>
+            </div>
+
+            <!-- Entry-Exit Mismatch -->
+            <div class="feature-card glass-card alert-card" id="alertBtn">
+                <div class="feature-icon">🚨</div>
+                <h2 class="feature-title">ENTRY-EXIT MISMATCH</h2>
+                <p class="feature-description">Count Discrepancy Detection</p>
+            </div>
+
+            <!-- Time-Based Risk Assessment -->
+            <div class="feature-card glass-card" id="cameraBtn">
+                <div class="feature-icon">📹</div>
+                <h2 class="feature-title">TIME-BASED RISK</h2>
+                <p class="feature-description">Live Camera</p>
+            </div>
+
+            <!-- Reverse Entry Detection -->
+            <div class="feature-card glass-card" id="dashboardBtn">
+                <div class="feature-icon">↩️</div>
+                <h2 class="feature-title">REVERSE ENTRY</h2>
+                <p class="feature-description">Wrong Direction Alert</p>
+            </div>
+
+            <!-- Suspicious Behavior Detection -->
+            <div class="feature-card glass-card" id="counterBtn">
+                <div class="feature-icon">🔢</div>
+                <h2 class="feature-title">SUSPICIOUS BEHAVIOR</h2>
+                <p class="feature-description">Loitering & Gestures</p>
+            </div>
+
+            <!-- Weapon Detection -->
+            <div class="feature-card glass-card" id="mapBtn">
+                <div class="feature-icon">🗺️</div>
+                <h2 class="feature-title">Map</h2>
+                <p class="feature-description">location</p>
+            </div>
+
+        </div>
+
+        <!-- Video Preview (hidden initially) -->
+        <div class="video-container glass-card" id="videoContainer" style="display: none;">
+            <h3>📹 Live Entry Point Monitor</h3>
+            <video id="videoPreview" autoplay muted playsinline></video>
+            <div class="detection-overlay" id="detectionOverlay">
+                <p class="detection-status">AI Detection: <span id="detectionCount">0</span> persons detected</p>
+            </div>
+            <div class="video-controls">
+                <button class="control-btn" id="startDetection">🔍 Start Detection</button>
+                <button class="control-btn" id="stopDetection" disabled>⏹️ Stop Detection</button>
+                <button class="control-btn" id="captureEvidence">📸 Capture Evidence</button>
+            </div>
+        </div>
+
+        <!-- Person Counter Panel -->
+        <div class="counter-panel glass-card" id="counterPanel" style="display: none;">
+            <h2>👥 Entry Counter</h2>
+            <div class="counter-display">
+                <div class="count-item">
+                    <div class="count-number" id="authorizedCount">0</div>
+                    <div class="count-label">Authorized Entries</div>
+                </div>
+                <div class="count-item">
+                    <div class="count-number" id="tailgatingCount">0</div>
+                    <div class="count-label">Tailgating Detected</div>
+                </div>
+                <div class="count-item">
+                    <div class="count-number" id="totalCount">0</div>
+                    <div class="count-label">Total Today</div>
+                </div>
+            </div>
+            <div style="margin-top: 12px; display:flex; gap:10px;">
+                <button class="control-btn" id="entryIncrement">➕ Entry</button>
+                <button class="control-btn" id="exitIncrement">➖ Exit</button>
+                <button class="control-btn" id="syncCounter">🔁 Sync</button>
+            </div>
+        </div>
+
+        <!-- Map Container (hidden initially) -->
+        <div class="map-container glass-card" id="mapContainer" style="display: none;">
+            <h3>🗺️ Entry Points Map</h3>
+            <div id="map" style="height: 400px; border-radius: 15px;"></div>
+        </div>
+
+    </div>
+
+    <!-- Notification Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Load Leaflet JS for maps -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!--
+    =====================================================
+    SOFTWARE SIMULATION - NO HARDWARE REQUIRED
+    =====================================================
+    -->
+    <script src="script.js"></script>
+    
+</body>
+</html>

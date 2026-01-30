@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Camera Feed - TailGuard</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .camera-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateX(-5px);
+        }
+
+        .camera-controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .start-btn {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+        }
+
+        .start-btn:hover:not(:disabled) {
+            background: rgba(76, 175, 80, 0.5);
+            transform: scale(1.05);
+        }
+
+        .stop-btn {
+            background: rgba(244, 67, 54, 0.3);
+            border: 1px solid rgba(244, 67, 54, 0.5);
+        }
+
+        .stop-btn:hover:not(:disabled) {
+            background: rgba(244, 67, 54, 0.5);
+            transform: scale(1.05);
+        }
+
+        .capture-btn {
+            background: rgba(33, 150, 243, 0.3);
+            border: 1px solid rgba(33, 150, 243, 0.5);
+        }
+
+        .capture-btn:hover:not(:disabled) {
+            background: rgba(33, 150, 243, 0.5);
+            transform: scale(1.05);
+        }
+
+        .detection-status {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 15px 0;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .status-active {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.4);
+            color: #4CAF50;
+        }
+
+        .status-inactive {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.4);
+            color: #f44336;
+        }
+
+        .detection-log {
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .log-entry {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+
+        .log-time {
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+
+        .log-event {
+            flex: 1;
+            margin: 0 15px;
+        }
+
+        .log-confidence {
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-gradient"></div>
+
+    <div class="container">
+
+        <!-- Header -->
+        <div class="glass-card camera-header">
+            <div>
+                <h1 class="title">📹 Live Camera Feed</h1>
+                <p class="subtitle">Real-time AI-Powered Person Detection</p>
+            </div>
+            <div>
+                <a href="index.html" class="back-btn">← Back to Home</a>
+            </div>
+        </div>
+
+        <!-- Camera Controls -->
+        <div class="glass-card camera-controls">
+            <button class="control-btn start-btn" id="startDetection">
+                🔍 Start Detection
+            </button>
+            <button class="control-btn stop-btn" id="stopDetection" disabled>
+                ⏹️ Stop Detection
+            </button>
+            <button class="control-btn capture-btn" id="captureEvidence">
+                📸 Capture Evidence
+            </button>
+        </div>
+
+        <!-- Video Container -->
+        <div class="glass-card">
+            <h2 style="margin-bottom: 20px;">📹 Live Entry Point Monitor</h2>
+            <video id="videoPreview" autoplay muted playsinline style="width: 100%; border-radius: 10px;"></video>
+            <div class="detection-overlay" id="detectionOverlay">
+                <p class="detection-status" id="detectionStatus">AI Detection: <span id="detectionCount">0</span> persons detected</p>
+            </div>
+        </div>
+
+        <!-- Detection Log -->
+        <div class="glass-card detection-log">
+            <h3>📋 Live Detection Log</h3>
+            <div id="detectionLog" class="log-container">
+                <div class="log-entry">
+                    <span class="log-time">--:--:--</span>
+                    <span class="log-event">AI System initialized - Ready for detection</span>
+                    <span class="log-confidence">Ready</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast"></div>
+
+    <script src="camera.js"></script>
+</body>
+</html>
